@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title></title>
+ </head>
+ <body> 
+
+Инн: <input type="text" name="input" value="7707083893" id="inntext"> <input id="sendinn" type="button" value="Поиск">
+
+<div id="companyinfo"></div>
+
+<script>
+
+
+
+function innquery(inn){
+var url = "https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party";
+var token = "0f15630cb2bde82bc244e9cb60e9e6f435e7f0f3";
+var query = inn;
+
+var options = {
+    method: "POST",
+    mode: "cors",
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Token " + token
+    },
+    body: JSON.stringify({query: query})
+}
+
+fetch(url, options)
+.then(response => response.text())
+.then(result => resinn(result))
+.catch(error => console.log("error", error));
+
+
+
+
+}
+
+
+function resinn(data){
+document.getElementById("companyinfo").innerHTML = data;
+
+var http = new XMLHttpRequest();
+var url = '/saveinn';
+var inntext = document.getElementById("inntext").value;
+var params = 'inn='+inntext+'&value='+data;
+http.open('POST', url, true);
+//Send the proper header information along with the request
+http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+http.onreadystatechange = function() {//Call a function when the state changes.
+    if(http.readyState == 4 && http.status == 200) {
+        alert(http.responseText);
+    }
+}
+http.send(params);
+
+}
+
+const button = document.getElementById("sendinn");
+button.addEventListener("click", (event) => {
+  var inntext = document.getElementById("inntext").value;
+  
+
+var http = new XMLHttpRequest();
+var url = '/getinn';
+var inntext = document.getElementById("inntext").value;
+var params = 'inn='+inntext;
+http.open('POST', url, true);
+//Send the proper header information along with the request
+http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+http.onreadystatechange = function() {//Call a function when the state changes.
+    if(http.readyState == 4 && http.status == 200) {
+	if(JSON.parse(http.responseText)[0]){
+        JSON.parse(http.responseText);
+		document.getElementById("companyinfo").innerHTML = JSON.parse(http.responseText)[0].value;
+	}else{
+	innquery(inntext);
+	}
+    }
+}
+http.send(params);
+
+  
+  
+});
+
+
+</script>
+ </body>
+</html>
+
